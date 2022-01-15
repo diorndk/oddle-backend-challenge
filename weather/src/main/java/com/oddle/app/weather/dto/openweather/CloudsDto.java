@@ -8,7 +8,7 @@ import lombok.Setter;
 
 @Setter
 @Getter
-@JsonInclude(Include.NON_NULL)
+@JsonInclude(Include.NON_DEFAULT)
 public class CloudsDto {
 	private int all;
 }

@@ -4,17 +4,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
-public class Response {
+@Data(staticConstructor="of")
+public class Response<T> {
 	private String status;
-    private Object data;
+    private T data;
     
-	 public static ResponseEntity<Response> create(Object data, HttpStatus httpStatus) {
-	        Response output = new Response();
+	@SuppressWarnings("unchecked")
+	public static <T> ResponseEntity<T> create(T data, HttpStatus httpStatus) {
+	        Response<T> output = new Response<>();
 	        switch (httpStatus) {
 	            case OK:
 	            case ACCEPTED:
@@ -32,20 +31,20 @@ public class Response {
 	        }
 	        output.setData(data);
 
-	        return ResponseEntity.status(httpStatus).contentType(MediaType.APPLICATION_JSON).body(output);
+	        return (ResponseEntity<T>) ResponseEntity.status(httpStatus).contentType(MediaType.APPLICATION_JSON).body(output);
 	    }
 
-	    public static ResponseEntity<Response> create(Object data, int status) {
+	    public static <T> ResponseEntity<T> create(T data, int status) {
 	        return create(data, HttpStatus.valueOf(status));
 	    }
-	    public static ResponseEntity<Response> notFound(Object data) {
+	    public static <T> ResponseEntity<T> notFound(T data) {
 	        return create(data, HttpStatus.NOT_FOUND);
 	    }
-	    public static ResponseEntity<Response> badRequest(Object data) {
+	    public static <T> ResponseEntity<T> badRequest(T data) {
 	        return create(data, HttpStatus.BAD_REQUEST);
 	    }
 
-	    public static ResponseEntity<Response> ok(Object data) {
+	    public static <T> ResponseEntity<T> ok(T data) {
 	        return create(data, HttpStatus.OK);
 	    }
 }

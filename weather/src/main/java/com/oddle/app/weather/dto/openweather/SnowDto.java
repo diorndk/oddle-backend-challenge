@@ -9,7 +9,7 @@ import lombok.Setter;
 
 @Setter
 @Getter
-@JsonInclude(Include.NON_NULL)
+@JsonInclude(Include.NON_DEFAULT)
 public class SnowDto {
 	@JsonProperty("1h")
 	private double volume1H;

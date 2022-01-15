@@ -12,9 +12,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.oddle.app.weather.dto.openweather.OpenWeatherDto;
 import com.oddle.app.weather.service.WeatherService;
+import com.oddle.app.weather.utility.Response;
 
 @RestController
-@RequestMapping("/api/weather")
+@RequestMapping("/api")
 public class WeatherController {
 	
 	@Autowired
@@ -25,8 +26,8 @@ public class WeatherController {
         return Collections.singletonMap("message", "Welcome to Oddle Backend Challenge");
     }
     
-    @GetMapping
+    @GetMapping("/weather")
     public ResponseEntity<OpenWeatherDto> getWeatherByCity(@RequestParam("city") String city) {
-    	return null;
+    	return Response.ok(weatherService.getWeatherByCity(city));
     }
 }

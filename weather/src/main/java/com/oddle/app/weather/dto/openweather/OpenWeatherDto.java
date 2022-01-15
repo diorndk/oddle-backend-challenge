@@ -11,7 +11,7 @@ import lombok.Setter;
 
 @Setter
 @Getter
-@JsonInclude(Include.NON_NULL)
+@JsonInclude(Include.NON_EMPTY)
 public class OpenWeatherDto {
 	@JsonProperty("coord")
 	private CoordinateDto coordinate;
