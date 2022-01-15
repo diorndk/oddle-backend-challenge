@@ -45,7 +45,7 @@ public class CityWeather extends BaseEntity implements Serializable {
 	private City city;
 	
 	@Column(name = "city_id", insertable = false, updatable = false)
-	private String cityId;
+	private Long cityId;
 	
 	@ManyToMany
 	@JoinTable(name = "city_weather_mapping")
