@@ -1,6 +1,5 @@
 package com.oddle.app.weather.exception;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,33 +13,27 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import com.oddle.app.weather.dto.exception.ErrorDetails;
+import com.oddle.app.weather.utility.Response;
 
 @ControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 	
 	@ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ErrorDetails> handleResourceNotFoundException(ResourceNotFoundException exception,
+    public ResponseEntity<String> handleResourceNotFoundException(ResourceNotFoundException exception,
                                                                         WebRequest webRequest){
-        ErrorDetails errorDetails = new ErrorDetails(new Date(), exception.getMessage(),
-                webRequest.getDescription(false));
-        return new ResponseEntity<>(errorDetails, HttpStatus.NOT_FOUND);
+        return Response.notFound(exception.getMessage());
     }
 
     @ExceptionHandler(WeatherException.class)
-    public ResponseEntity<ErrorDetails> handleAccountsException(WeatherException exception,
+    public ResponseEntity<String> handleAccountsException(WeatherException exception,
                                                                         WebRequest webRequest){
-        ErrorDetails errorDetails = new ErrorDetails(new Date(), exception.getMessage(),
-                webRequest.getDescription(false));
-        return new ResponseEntity<>(errorDetails, exception.getStatus());
+        return Response.create(exception.getMessage(), exception.getStatus());
     }
     
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorDetails> handleGlobalException(Exception exception,
+    public ResponseEntity<String> handleGlobalException(Exception exception,
                                                                WebRequest webRequest){
-        ErrorDetails errorDetails = new ErrorDetails(new Date(), exception.getMessage(),
-                webRequest.getDescription(false));
-        return new ResponseEntity<>(errorDetails, HttpStatus.INTERNAL_SERVER_ERROR);
+        return Response.create(exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @Override
@@ -55,6 +48,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             errors.put(fieldName, message);
         });
 
-        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+        return Response.badRequest(errors);
     }
 }

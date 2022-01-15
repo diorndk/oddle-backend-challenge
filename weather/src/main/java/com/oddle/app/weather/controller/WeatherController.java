@@ -28,6 +28,7 @@ public class WeatherController {
     
     @GetMapping("/weather")
     public ResponseEntity<OpenWeatherDto> getWeatherByCity(@RequestParam("city") String city) {
-    	return Response.ok(weatherService.getWeatherByCity(city));
+    	OpenWeatherDto openWeather = weatherService.getWeatherByCity(city);
+    	return Response.ok(openWeather);
     }
 }

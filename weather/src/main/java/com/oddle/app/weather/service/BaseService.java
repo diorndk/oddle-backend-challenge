@@ -12,12 +12,12 @@ public abstract class BaseService {
 	@Autowired
 	protected ModelMapper modelMapper;
 	
-	protected <T> T convertToDto(Object source, Class<T> target) {
+	protected <T> T convertObject(Object source, Class<T> target) {
 		modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 		return modelMapper.map(source, target);
 	}
 	
-	protected <S, T> List<T> convertToDtos(List<S> source, Class<T> target) {
+	protected <S, T> List<T> convertObject(List<S> source, Class<T> target) {
 		modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 		return source.stream()
 				.map(e -> modelMapper.map(e, target))
