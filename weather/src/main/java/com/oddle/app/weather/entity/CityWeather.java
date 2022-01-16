@@ -13,6 +13,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
+import javax.persistence.PrePersist;
+import javax.persistence.PreUpdate;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -41,7 +43,7 @@ public class CityWeather extends BaseEntity implements Serializable {
 	private double tempMax;
 	
 	@Column(nullable = false)
-	private LocalDateTime weatherDate = LocalDateTime.now();
+	private LocalDateTime weatherDate;
 	
 	private int visibility;
 	
@@ -55,5 +57,15 @@ public class CityWeather extends BaseEntity implements Serializable {
 	@ManyToMany
 	@JoinTable(name = "city_weather_mapping", joinColumns=@JoinColumn(name = "city_weather_id"), inverseJoinColumns=@JoinColumn(name="weather_id"))
 	private List<Weather> weathers;
+	
+	@PrePersist
+	public void persistWeatherDate() {
+		this.weatherDate = LocalDateTime.now();
+	}
+	
+	@PreUpdate
+	public void updateWeatherDate() {
+		this.weatherDate = LocalDateTime.now();
+	}
 
 }

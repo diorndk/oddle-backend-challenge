@@ -1,5 +1,7 @@
 package com.oddle.app.weather.dto;
 
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,15 +10,27 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.oddle.app.weather.dto.openweather.WeatherDto;
 
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
+@JsonPropertyOrder({
+	"coord",
+	"weathers",
+	"base",
+	"main",
+	"visibility",
+	"dt"
+})
 @JsonInclude(Include.NON_EMPTY)
 public class CityWeatherDto {
+	@JsonProperty("city_weather_id")
+	private Long cityWeatherId;
 	private String base;
 	@JsonIgnore
 	private double temperature;
@@ -28,38 +42,15 @@ public class CityWeatherDto {
 	private double tempMin;
 	@JsonIgnore
 	private double tempMax;
-	private Long dt;
 	private int visibility;
+	@Getter(AccessLevel.NONE)
+	private LocalDateTime weatherDate;
 	@JsonProperty("id")
 	private Long cityId;
 	@JsonIgnore
 	private CityDto city;
 	@JsonProperty("weather")
 	private List<WeatherDto> weathers;
-	
-//	public void setBase(String base) {
-//		this.base = base;
-//	}
-//	
-//	public String getBase() {
-//		return this.base;
-//	}
-//	
-//	public void setDt(Long dt) {
-//		this.dt = dt;
-//	}
-//	
-//	public Long getDt() {
-//		return this.dt;
-//	}
-//	
-//	public void setVisibility(int visibility) {
-//		this.visibility = visibility;
-//	}
-//	
-//	public int getVisibility() {
-//		return this.visibility;
-//	}
 	
 	@JsonProperty("main")
 	public void setMain(Map<String, Object> main) {
@@ -81,24 +72,30 @@ public class CityWeatherDto {
 		return main;
 	}
 	
-//	public void setCityId(Long cityId) {
-//		this.cityId = cityId;
-//	}
-//	
-//	public Long getCityId() {
-//		return this.cityId;
-//	}
-//	
-//	public void setWeathers(List<WeatherDto> weathers) {
-//		this.weathers = weathers;
-//	}
-//	
-//	public List<WeatherDto> getWeathers() {
-//		return this.weathers;
-//	}
+	@JsonProperty("coord")
+	public Map<String, Object> getCoordinate() {
+		Map<String, Object> coord = new HashMap<>();
+		coord.put("lon", city.getLongitude());
+		coord.put("lat", city.getLatitude());
+		return coord;
+	}
 	
 	@JsonProperty("name")
 	public String getCityName() {
 		return this.city.getCityName();
+	}
+	
+	@JsonProperty("country")
+	public String getCountry() {
+		return this.city.getCountry();
+	}
+	
+	@JsonProperty("dt")
+	public long getDt() {
+		return convertTimeToEpoch(this.weatherDate);
+	}
+	
+	protected long convertTimeToEpoch(LocalDateTime time) {
+		return time.toEpochSecond(ZoneOffset.UTC);
 	}
 }

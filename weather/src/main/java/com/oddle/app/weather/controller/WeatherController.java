@@ -31,31 +31,31 @@ public class WeatherController {
         return Collections.singletonMap("message", "Welcome to Oddle Backend Challenge");
     }
     
-    @GetMapping("/weather")
+    @GetMapping("/weathers")
     public ResponseEntity<List<WeatherDto>> getAllWeather() {
     	List<WeatherDto> weathers = weatherService.getAllWeather();
     	return Response.ok(weathers);
     }
     
-    @GetMapping("/weather/{weatherId}")
+    @GetMapping("/weathers/{weatherId}")
     public ResponseEntity<WeatherDto> getWeatherById(@PathVariable("weatherId") Long weatherId) {
     	WeatherDto weather = weatherService.getWeatherById(weatherId);
     	return Response.ok(weather);
     }
     
-    @PostMapping("/weather")
+    @PostMapping("/weathers")
     public ResponseEntity<WeatherDto> saveWeather(@RequestBody WeatherDto weatherDto) {
     	WeatherDto weather = weatherService.saveWeather(weatherDto);
     	return Response.ok(weather);
     }
     
-    @PutMapping("/weather/{weatherId}")
+    @PutMapping("/weathers/{weatherId}")
     public ResponseEntity<WeatherDto> updateWeather(@PathVariable("weatherId") Long weatherId, @RequestBody WeatherDto weatherDto) {
     	WeatherDto weather = weatherService.updateWeather(weatherId, weatherDto);
     	return Response.ok(weather);
     }
     
-    @DeleteMapping("/weather/{weatherId}")
+    @DeleteMapping("/weathers/{weatherId}")
     public ResponseEntity<String> deleteWeather(@PathVariable("weatherId") Long weatherId) {
     	weatherService.deleteWeather(weatherId);
     	return Response.ok("Deleted Successfully");

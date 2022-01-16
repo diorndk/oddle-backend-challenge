@@ -7,6 +7,9 @@ import com.oddle.app.weather.dto.openweather.OpenWeatherDto;
 
 public interface CityWeatherService {
 	OpenWeatherDto getWeatherByCity(String city);
-	List<OpenWeatherDto> getHistoricalWeather();
-	CityWeatherDto saveWeatherData(CityWeatherDto dto);
+	List<CityWeatherDto> getWeatherFromPastDate(String fromDate, String toDate);
+	CityWeatherDto getCityWeatherById(Long cityWeatherId);
+	CityWeatherDto saveWeatherData(CityWeatherDto cityWeatherDto);
+	CityWeatherDto updateWeatherData(Long cityWeatherId, CityWeatherDto cityWeatherDto);
+	void deleteWeatherData(Long cityWeatherId);
 }

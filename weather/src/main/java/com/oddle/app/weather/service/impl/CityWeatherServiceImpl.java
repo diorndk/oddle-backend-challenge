@@ -1,5 +1,8 @@
 package com.oddle.app.weather.service.impl;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,13 +27,18 @@ import com.oddle.app.weather.repository.WeatherRepository;
 import com.oddle.app.weather.service.BaseService;
 import com.oddle.app.weather.service.CityWeatherService;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Service
 @Transactional
 public class CityWeatherServiceImpl extends BaseService implements CityWeatherService {
 	
 	private static final String CITY_RESOURCE_NAME = "City";
 	private static final String WEATHER_RESOURCE_NAME = "Weather";
+	private static final String CITY_WEATHER_RESOURCE_NAME = "City Weather";
 	private static final String FIELD_NAME = "id";
+	private static final long DEFAULT_PAST_DAY = 7;
 
 	@Value("${open-weather.api.url}")
 	private String apiUrl;
@@ -64,9 +72,22 @@ public class CityWeatherServiceImpl extends BaseService implements CityWeatherSe
 	}
 	
 	@Override
-	public List<OpenWeatherDto> getHistoricalWeather() {
-		// TODO Auto-generated method stub
-		return null;
+	public CityWeatherDto getCityWeatherById(Long cityWeatherId) {
+		CityWeather cityWeather = cityWeatherRepository.findById(cityWeatherId)
+				.orElseThrow(() -> 
+				new ResourceNotFoundException(CITY_WEATHER_RESOURCE_NAME, FIELD_NAME, cityWeatherId));
+		return convertObject(cityWeather, CityWeatherDto.class);
+	}
+	
+	@Override
+	public List<CityWeatherDto> getWeatherFromPastDate(String fromDate, String toDate) {
+		LocalDateTime from = convertStringToDateTime(fromDate, true);
+		LocalDateTime to = convertStringToDateTime(toDate, false);
+		if(from.isAfter(to)) {
+			throw new WeatherException(HttpStatus.BAD_REQUEST, "'To' date must be grater than 'From' date");
+		}
+		List<CityWeather> cityWeathers = cityWeatherRepository.findByWeatherDateBetween(from, to);
+		return convertObject(cityWeathers, CityWeatherDto.class);
 	}
 	
 	@Override
@@ -85,35 +106,42 @@ public class CityWeatherServiceImpl extends BaseService implements CityWeatherSe
 		cityWeather.setCity(city);
 		cityWeather.setWeathers(weathers);
 		cityWeather = cityWeatherRepository.save(cityWeather);
-		CityWeatherDto dto = convertObject(cityWeather, CityWeatherDto.class);
-		long epoch = convertTimeToEpoch(cityWeather.getWeatherDate());
-		dto.setDt(epoch);
-		return dto;
+		return convertObject(cityWeather, CityWeatherDto.class);
 	}
 	
-//	@Override
-//	public OpenWeatherDto saveWeatherData(OpenWeatherDto dto) {
-//		City city = cityRepository.findById(dto.getCityId())
-//				.orElseThrow(() -> 
-//				new ResourceNotFoundException(CITY_RESOURCE_NAME, FIELD_NAME, dto.getCityId()));
-//		List<Weather> weathers = new ArrayList<>();
-//		dto.getWeathers()
-//		.forEach(e -> {
-//			Weather weather = weatherRepository.findById(e.getWeatherId())
-//					.orElseThrow(() -> 
-//					new ResourceNotFoundException(WEATHER_RESOURCE_NAME, FIELD_NAME, e.getWeatherId()));
-//			weathers.add(weather);
-//		});
-//		CityWeather cityWeather = new CityWeather();
-//		cityWeather.setBase(dto.getBase());
-//		cityWeather.setTemperature(dto.getMain().getTemperature());
-//		cityWeather.setPressure(dto.getMain().getPressure());
-//		cityWeather.setHumidity(dto.getMain().getHumidity());
-//		cityWeather.setCity(city);
-//		cityWeather.setWeathers(weathers);
-//		cityWeatherRepository.save(cityWeather);
-//		return dto;
-//	}
+	@Override
+	public CityWeatherDto updateWeatherData(Long cityWeatherId, CityWeatherDto cityWeatherDto) {
+		CityWeather cityWeather = cityWeatherRepository.findById(cityWeatherId)
+				.orElseThrow(() -> 
+				new ResourceNotFoundException(CITY_WEATHER_RESOURCE_NAME, FIELD_NAME, cityWeatherId));
+		City city = cityRepository.findById(cityWeatherDto.getCityId())
+				.orElseThrow(() -> 
+				new ResourceNotFoundException(CITY_RESOURCE_NAME, FIELD_NAME, cityWeatherDto.getCityId()));
+		List<Weather> weathers = new ArrayList<>();
+		for(WeatherDto w: cityWeatherDto.getWeathers()) {
+			Weather weather = weatherRepository.findById(w.getWeatherId())
+					.orElseThrow(() -> 
+					new ResourceNotFoundException(WEATHER_RESOURCE_NAME, FIELD_NAME, w.getWeatherId()));
+			weathers.add(weather);
+		}
+		cityWeather.setCity(city);
+		cityWeather.setWeathers(weathers);
+		cityWeather.setBase(cityWeatherDto.getBase());
+		cityWeather.setHumidity(cityWeatherDto.getHumidity());
+		cityWeather.setPressure(cityWeatherDto.getPressure());
+		cityWeather.setTemperature(cityWeatherDto.getTemperature());
+		cityWeather.setTempMax(cityWeatherDto.getTempMax());
+		cityWeather.setTempMin(cityWeatherDto.getTempMin());
+		cityWeather.setVisibility(cityWeatherDto.getVisibility());
+		return convertObject(cityWeather, CityWeatherDto.class);
+	}
+
+	@Override
+	public void deleteWeatherData(Long cityWeatherId) {
+		CityWeather cityWeather = cityWeatherRepository.findById(cityWeatherId)
+				.orElseThrow(() -> new ResourceNotFoundException(CITY_WEATHER_RESOURCE_NAME, FIELD_NAME, cityWeatherId));
+		cityWeatherRepository.delete(cityWeather);
+	}
 	
 	private boolean isEmpty(String value) {
 		return value == null || value.isEmpty();
@@ -128,5 +156,25 @@ public class CityWeatherServiceImpl extends BaseService implements CityWeatherSe
 		sb.append(apiKey);
 		return sb.toString();
 	}
-
+	
+	private LocalDateTime convertStringToDateTime(String date, boolean isFromDate) {
+		if(date.equals("") && isFromDate) {
+			LocalDate fromDate = LocalDate.now();
+			return fromDate.minusDays(DEFAULT_PAST_DAY).atStartOfDay();
+		} else if(date.equals("") && !isFromDate) {
+			return LocalDateTime.now();
+		} else {
+			DateTimeFormatter formatter = null;
+			LocalDateTime result = null;
+			try {
+				formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+				date = date.concat(" 00:00:00");
+				result = LocalDateTime.parse(date, formatter);
+			} catch(Exception e) {
+				log.error("********** Error when parsing date **********", e);
+				throw new WeatherException(HttpStatus.BAD_REQUEST, "Please input the date in 'yyyy-MM-dd' format");
+			}
+			return result;
+		}
+	}
 }

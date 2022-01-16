@@ -33,6 +33,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleGlobalException(Exception exception,
                                                                WebRequest webRequest){
+    	logger.error("********** Runtime Exception **********", exception);
         return Response.create(exception.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 

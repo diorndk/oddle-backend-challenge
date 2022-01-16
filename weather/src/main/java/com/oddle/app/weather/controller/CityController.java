@@ -24,31 +24,31 @@ public class CityController {
 	@Autowired
 	private CityService cityService;
 	
-	@GetMapping("/city")
+	@GetMapping("/cities")
 	public ResponseEntity<List<CityDto>> getAllCity() {
 		List<CityDto> cities = cityService.getAllCity();
 		return Response.ok(cities);
 	}
 	
-	@GetMapping("/city/{cityId}")
+	@GetMapping("/cities/{cityId}")
 	public ResponseEntity<CityDto> getCityById(@PathVariable("cityId") Long cityId) {
 		CityDto city = cityService.getCityById(cityId);
 		return Response.ok(city);
 	}
 	
-	@PostMapping("/city")
+	@PostMapping("/cities")
 	public ResponseEntity<CityDto> saveCity(@RequestBody CityDto cityDto) {
 		CityDto city = cityService.saveCity(cityDto);
 		return Response.ok(city);
 	}
 	
-	@PutMapping("/city/{cityId}")
+	@PutMapping("/cities/{cityId}")
 	public ResponseEntity<CityDto> updateCity(@PathVariable("cityId") Long cityId, @RequestBody CityDto cityDto) {
 		CityDto city = cityService.updateCity(cityId, cityDto);
 		return Response.ok(city);
 	}
 	
-	@DeleteMapping("/city/{cityId}")
+	@DeleteMapping("/cities/{cityId}")
 	public ResponseEntity<String> deleteCity(@PathVariable("cityId") Long cityId) {
 		cityService.deleteCity(cityId);
 		return Response.ok("Deleted Successfully");
