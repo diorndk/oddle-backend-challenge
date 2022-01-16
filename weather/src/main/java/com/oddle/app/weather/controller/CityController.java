@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -45,5 +46,11 @@ public class CityController {
 	public ResponseEntity<CityDto> updateCity(@PathVariable("cityId") Long cityId, @RequestBody CityDto cityDto) {
 		CityDto city = cityService.updateCity(cityId, cityDto);
 		return Response.ok(city);
+	}
+	
+	@DeleteMapping("/city/{cityId}")
+	public ResponseEntity<String> deleteCity(@PathVariable("cityId") Long cityId) {
+		cityService.deleteCity(cityId);
+		return Response.ok("Deleted Successfully");
 	}
 }

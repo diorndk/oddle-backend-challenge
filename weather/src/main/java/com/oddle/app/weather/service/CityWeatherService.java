@@ -1,5 +1,7 @@
 package com.oddle.app.weather.service;
 
-public interface CityWeatherService {
+import com.oddle.app.weather.dto.openweather.OpenWeatherDto;
 
+public interface CityWeatherService {
+	OpenWeatherDto getWeatherByCity(String city);
 }

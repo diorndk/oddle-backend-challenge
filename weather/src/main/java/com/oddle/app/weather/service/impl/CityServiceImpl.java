@@ -52,7 +52,7 @@ public class CityServiceImpl extends BaseService implements CityService {
 		city.setCityName(cityDto.getCityName());
 		city.setCountry(cityDto.getCountry());
 		city.setLongitude(cityDto.getLongitude());
-		city.setLatitude(cityDto.getLatitdue());
+		city.setLatitude(cityDto.getLatitude());
 		city = cityRepository.save(city);
 		return convertObject(city, CityDto.class);
 	}

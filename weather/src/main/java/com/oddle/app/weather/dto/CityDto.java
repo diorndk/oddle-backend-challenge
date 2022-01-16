@@ -19,5 +19,5 @@ public class CityDto {
 	@JsonProperty("lon")
 	private double longitude;
 	@JsonProperty("lat")
-	private double latitdue;
+	private double latitude;
 }

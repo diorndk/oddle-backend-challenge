@@ -1,53 +1,66 @@
 package com.oddle.app.weather.service.impl;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
 
-import com.oddle.app.weather.dto.openweather.OpenWeatherDto;
-import com.oddle.app.weather.exception.WeatherException;
+import com.oddle.app.weather.dto.openweather.WeatherDto;
+import com.oddle.app.weather.entity.Weather;
+import com.oddle.app.weather.exception.ResourceNotFoundException;
+import com.oddle.app.weather.repository.WeatherRepository;
+import com.oddle.app.weather.service.BaseService;
 import com.oddle.app.weather.service.WeatherService;
 
 @Service
 @Transactional
-public class WeatherServiceImpl implements WeatherService {
+public class WeatherServiceImpl extends BaseService implements WeatherService {
 	
-	@Value("${open-weather.api.url}")
-	private String apiUrl;
+	private static final String RESOURCE_NAME = "Weather";
+	private static final String FIELD_NAME = "id";
 	
-	@Value("${open-weather.api.key}")
-	private String apiKey;
+	@Autowired
+	private WeatherRepository weatherRepository;
 
 	@Override
-	public OpenWeatherDto getWeatherByCity(String city) {
-		if(isEmpty(city)) {
-			throw new WeatherException(HttpStatus.BAD_REQUEST, "Please input the city");
-		}
-		OpenWeatherDto dto = new OpenWeatherDto();
-		String url = concatUrl(apiUrl, apiKey, city);
-		try {
-			RestTemplate restTemplate = new RestTemplate();
-			dto = restTemplate.getForObject(url, OpenWeatherDto.class);
-		} catch(Exception e) {
-			throw new WeatherException(HttpStatus.NOT_FOUND, "Data weather not found");
-		}
-		return dto;
+	public List<WeatherDto> getAllWeather() {
+		List<Weather> weathers = weatherRepository.findAll();
+		return convertObject(weathers, WeatherDto.class);
 	}
-	
-	private boolean isEmpty(String value) {
-		return value == null || value.isEmpty();
+
+	@Override
+	public WeatherDto getWeatherById(Long weatherId) {
+		Weather weather = weatherRepository.findById(weatherId)
+				.orElseThrow(() -> 
+				new ResourceNotFoundException(RESOURCE_NAME, FIELD_NAME, weatherId));
+		return convertObject(weather, WeatherDto.class);
 	}
-	
-	private String concatUrl(String apiUrl, String apiKey, String param) {
-		StringBuilder sb = new StringBuilder();
-		sb.append(apiUrl);
-		sb.append("?q=");
-		sb.append(param);
-		sb.append("&appid=");
-		sb.append(apiKey);
-		return sb.toString();
+
+	@Override
+	public WeatherDto saveWeather(WeatherDto weatherDto) {
+		Weather weather = convertObject(weatherDto, Weather.class);
+		weather = weatherRepository.save(weather);
+		return convertObject(weather, WeatherDto.class);
+	}
+
+	@Override
+	public WeatherDto updateWeather(Long weatherId, WeatherDto weatherDto) {
+		Weather weather = weatherRepository.findById(weatherId)
+				.orElseThrow(() -> 
+				new ResourceNotFoundException(RESOURCE_NAME, FIELD_NAME, weatherId));
+		weather.setDescription(weatherDto.getDescription());
+		weather.setMain(weatherDto.getMain());
+		weather = weatherRepository.save(weather);
+		return convertObject(weather, WeatherDto.class);
+	}
+
+	@Override
+	public void deleteWeather(Long weatherId) {
+		Weather weather = weatherRepository.findById(weatherId)
+				.orElseThrow(() -> 
+				new ResourceNotFoundException(RESOURCE_NAME, FIELD_NAME, weatherId));
+		weatherRepository.delete(weather);
 	}
 
 }

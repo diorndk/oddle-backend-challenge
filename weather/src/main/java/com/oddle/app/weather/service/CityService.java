@@ -5,9 +5,9 @@ import java.util.List;
 import com.oddle.app.weather.dto.CityDto;
 
 public interface CityService {
-	public List<CityDto> getAllCity();
-	public CityDto getCityById(Long cityId);
-	public CityDto saveCity(CityDto cityDto);
-	public CityDto updateCity(Long cityId, CityDto cityDto);
-	public void deleteCity(Long cityId);
+	List<CityDto> getAllCity();
+	CityDto getCityById(Long cityId);
+	CityDto saveCity(CityDto cityDto);
+	CityDto updateCity(Long cityId, CityDto cityDto);
+	void deleteCity(Long cityId);
 }

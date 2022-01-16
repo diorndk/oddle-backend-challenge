@@ -28,6 +28,8 @@ public class CityWeather extends BaseEntity implements Serializable {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long cityWeatherId;
 	
+	private String base;
+	
 	private double temperature;
 	
 	private int pressure;
@@ -38,7 +40,9 @@ public class CityWeather extends BaseEntity implements Serializable {
 	
 	private double tempMax;
 	
-	private LocalDate dt;
+	private Long dt;
+	
+	private int visibility;
 	
 	@ManyToOne
 	@JoinColumn(name = "city_id")
