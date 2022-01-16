@@ -1,5 +1,8 @@
 package com.oddle.app.weather.service;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,5 +25,9 @@ public abstract class BaseService {
 		return source.stream()
 				.map(e -> modelMapper.map(e, target))
 			    .collect(Collectors.toList());
+	}
+	
+	protected Long convertTimeToEpoch(LocalDateTime time) {
+		return time.toEpochSecond(ZoneOffset.UTC);
 	}
 }

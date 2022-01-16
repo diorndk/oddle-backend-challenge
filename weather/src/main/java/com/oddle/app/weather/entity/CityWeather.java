@@ -1,7 +1,7 @@
 package com.oddle.app.weather.entity;
 
 import java.io.Serializable;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import javax.persistence.Column;
@@ -40,7 +40,8 @@ public class CityWeather extends BaseEntity implements Serializable {
 	
 	private double tempMax;
 	
-	private Long dt;
+	@Column(nullable = false)
+	private LocalDateTime weatherDate = LocalDateTime.now();
 	
 	private int visibility;
 	
