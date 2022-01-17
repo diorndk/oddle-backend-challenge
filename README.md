@@ -1,5 +1,5 @@
-**Postman API Documentation**
-Here's the API documentation: https://documenter.getpostman.com/view/9824665/UVXjKbjx
+**API Documentation**
+Here's the Postman API documentation: https://documenter.getpostman.com/view/9824665/UVXjKbjx
 
 # Oddle Backend Challenge - V2
 
